@@ -1,34 +1,36 @@
 import React from 'react';
-
-import ContactItem from './ContactItem/ContactItem';
+import { ContactListWrapper } from './ContactListStyles';
 import { useSelector } from 'react-redux';
-import { getFilter } from 'redux/selectors';
-import {ContList} from './ContactList.styled';
-import {  useGetFilterQuery } from 'redux/contactsapi';
+import { selectContacts, selectContactsFilter } from 'redux/selectors';
+import ContactItem from 'components/ContactListItem';
+import Notiflix from 'notiflix';
 
 function ContactList() {
-
-  const filter = useSelector(getFilter);
-
-  const { data: filteredContacts, isLoading, isError } = useGetFilterQuery(filter);
-
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  const filter = useSelector(selectContactsFilter);
+  const contacts = useSelector(selectContacts);
+  console.log(contacts);
+  if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
+    return null;
   }
 
-  if (isError) {
-    return <div>Error loading contacts</div>;
+  const filteredContacts = contacts.filter(
+    contact =>
+      typeof filter === 'string' &&
+      typeof contact.name === 'string' &&
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  if (!filteredContacts?.length) {
+    Notiflix.Notify.info('No contacts found.');
   }
 
   return (
-    <ContList>
-      {filteredContacts.map(({ id, name, number }) => (
-        <ContactItem key={id} id={id} name={name} number={number} />
+    <ContactListWrapper>
+      {filteredContacts.map(({ id, name, phone }) => (
+        <ContactItem key={id} id={id} name={name} phone={phone} />
       ))}
-    </ContList>
+    </ContactListWrapper>
   );
 }
-
 
 export default ContactList;
