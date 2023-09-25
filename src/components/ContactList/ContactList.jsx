@@ -1,49 +1,36 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { selectContacts, selectContactsFilter } from 'redux/selectors';
-import Notiflix from 'notiflix';
-import { Paper, Grid } from '@mui/material';
-import ContactItem from 'components/ContactListItem';
+import { getContacts } from 'redux/contacts/contactsSlice';
+import {
+  ContactListUl,
+  ContactListItem,
+  ButtonDelete,
+} from './ContactList.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFilter } from 'redux/contacts/filterSlice';
+import { deleteContact } from 'redux/contacts/contacts-thunk';
 
-function ContactList() {
-  const filter = useSelector(selectContactsFilter);
-  const contacts = useSelector(selectContacts);
+export const ContactList = () => {
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
 
-  if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
-    return null;
-  }
+  const handleDeleteContact = contactId => {
+    dispatch(deleteContact(contactId));
+  };
 
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
 
-  if (!filteredContacts?.length) {
-    Notiflix.Notify.info('No contacts found.');
-  }
-
   return (
-    <Paper
-      sx={{
-        p: 2,
-      }}
-    >
-      <Grid
-        container
-        spacing={3}
-        justifyContent="space-between"
-        sx={{
-          maxWidth: 600,
-          margin: '0 auto',
-        }}
-      >
-        {filteredContacts.map(({ id, name, number }) => (
-          <Grid item xs={12} key={id}>
-            <ContactItem id={id} name={name} phone={number} />
-          </Grid>
-        ))}
-      </Grid>
-    </Paper>
+    <ContactListUl>
+      {filteredContacts.map(contact => (
+        <ContactListItem key={contact.id}>
+          {contact.name}: {contact.number}
+          <ButtonDelete onClick={() => handleDeleteContact(contact.id)}>
+            Delete
+          </ButtonDelete>
+        </ContactListItem>
+      ))}
+    </ContactListUl>
   );
-}
-
-export default ContactList;
+};

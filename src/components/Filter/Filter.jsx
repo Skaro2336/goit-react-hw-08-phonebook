@@ -1,49 +1,27 @@
-import React from 'react';
+import { FilterLabel, FilterInput } from './Filter.styled';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectContactsFilter } from 'redux/selectors';
-import { setFilter } from 'redux/filterSlice';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import { getFilter, setFilter } from 'redux/contacts/filterSlice';
 
-function FilterComponent() {
+export const Filter = () => {
+  const filter = useSelector(getFilter);
   const dispatch = useDispatch();
-  const filter = useSelector(selectContactsFilter);
 
-  const handleFilterChange = e => {
-    dispatch(setFilter(e.target.value.trim()));
+  const handleFilterByName = e => {
+    dispatch(setFilter(e.target.value));
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        mt: 3,
-        mb: 5,
-      }}
-    >
-      <FormControl>
-        <Typography variant="h5" align="center" gutterBottom>
-          Filter contacts:
-        </Typography>
-        <InputLabel htmlFor="filter"></InputLabel>
-        <TextField
-          type="text"
-          placeholder="Enter a name"
-          id="filter"
-          name="filter"
-          value={filter}
-          onChange={handleFilterChange}
-          sx={{ width: '100%', marginTop: '16px', mt: 1 }}
-        />
-      </FormControl>
-    </Box>
+    <FilterLabel>
+      Find contacts by name
+      <FilterInput
+        type="text"
+        name="filter"
+        pattern="^[a-zA-Zа-яА-Я]+(([' \\-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        required
+        onChange={handleFilterByName}
+        value={filter}
+      />
+    </FilterLabel>
   );
-}
-
-export default FilterComponent;
+};
